@@ -13,7 +13,9 @@ class BattleshipGame():
 
     # Displays the board
     def drawBoards(self, hide):
+        # X-axis scale
         numbers = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+        
         line = "    Computer's board:         User's board:\n    " + '%s '*10 % numbers + '     ' + '%d '*10 % numbers \
                + '\n'
         letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
@@ -73,7 +75,9 @@ class BattleshipGame():
 
     # Places the user ships
     def userPlace(self):
+        # Y-axis scale
         letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
+        
         for x in self.userShips:
             valid = False
 
@@ -201,6 +205,7 @@ def main():
     board.drawBoards(True)
     board.userPlace()
     player = True
+    # Y-axis scale
     letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
     # Loop till someone wins
     while not board.checkWinning(player):

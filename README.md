@@ -1,4 +1,4 @@
-# Battleship (CMPUT 175 solo assignment)
+# Battleship (CMPUT 175 Solo Assignment)
   [Rules of battleship](https://en.wikipedia.org/wiki/Battleship_(game))
   
 # Status: In-progress (03/22/2016)

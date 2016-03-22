@@ -7,6 +7,7 @@
 - Simple command line display
 - Simple command line input
 - Class for board state
+- AI chooses location to hit at random
 
 # Future Features
 - Fully interactive GUI

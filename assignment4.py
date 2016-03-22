@@ -18,12 +18,14 @@ class BattleshipGame():
         
         line = "    Computer's board:         User's board:\n    " + '%s '*10 % numbers + '     ' + '%d '*10 % numbers \
                + '\n'
+
         # Y-axis scale
         letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
         
         for x in range(10):
             line += ' ' + letters[x] + ' '
             for y in self.computerBoard[x]:
+                
                 # Displays the ships if hide is true
                 if hide:
                     if y == 'A' or y == 'B' or y == 'S' or y == 'D' or y == 'P':
@@ -55,7 +57,8 @@ class BattleshipGame():
     # Places the computers ships at random locations and orientations
     def comupterPlace(self):
         for x in self.computerShips:
-            # choose the orientation
+            
+            # chooses the orientation
             orientation = random.choice(['v', 'h'])
             valid = False
 
@@ -173,19 +176,23 @@ class BattleshipGame():
         else:
             board = self.computerBoard
         sunk = False
+        
         # Checks id you already made a move there
         if board[x][y] == '*' or board[x][y] == '#':
             return board[x][y]
         else:
             # Gets the old symbol in that cell
             old = board[x][y]
+            
             # If a ship was in that cell
             if board[x][y] != ' ':
                 board[x][y] = '#'
+                
                 # Checks to see if you sunk the ship
                 sunk = self.checkIfSunk(computer, old)
             else:
                 board[x][y] = '*'
+                
             # returns the old cell symbol and if you sunk a ship
             return old, sunk
 
@@ -206,17 +213,21 @@ def main():
     board.drawBoards(True)
     board.userPlace()
     player = True
+    
     # Y-axis scale
     letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
+    
     # Loop till someone wins
     while not board.checkWinning(player):
         number = False
         content = ['*', None]
         coordinates = ['Z', None]
+        
         # If its the players turn
         if player:
             board.drawBoards(True)
             board.getEnemyFleet(player)
+            
             # Error trap till correct input
             while coordinates[0] not in letters or not number:
                     coordinates = input('Enter coordinates x y (x in [A..J] and y in [1..10]): ').split(' ')
@@ -237,12 +248,14 @@ def main():
         while content[0] == '*' or content[0] == '#':
             content = board.makeA_Move(not player, letters.index(coordinates[0]), coordinates[1]-1)
             coordinates[1] = str(coordinates[1])
+
             # Message if you already chose that cell
             if content[0] == '*' or content[0] == '#':
                 if player:
                     print('Sorry, ' + coordinates[0] + ' ' + coordinates[1] + ' was already played. Try again.')
                 else:
                     coordinates = [random.choice(letters), random.randint(1, 10)]
+
         # Different messages based on if you hit or missed
         if player:
             if content[0] == ' ':
@@ -256,6 +269,7 @@ def main():
                 print('Computer did a hit at ' + coordinates[0] + ' ' + coordinates[1] + '\n')
         if content[1]:
                     print(board.reference[content[0]] + ' sunk')
+
         # Flips the player
         player = not player
     # End game messages

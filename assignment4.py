@@ -18,7 +18,9 @@ class BattleshipGame():
         
         line = "    Computer's board:         User's board:\n    " + '%s '*10 % numbers + '     ' + '%d '*10 % numbers \
                + '\n'
+        # Y-axis scale
         letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
+        
         for x in range(10):
             line += ' ' + letters[x] + ' '
             for y in self.computerBoard[x]:
@@ -115,12 +117,11 @@ class BattleshipGame():
                 elif orientation == 'h' and y_axis + self.userShips[x] < 9:
                     valid = self.validatePlacement(False, self.userShips[x], x_axis, y_axis, orientation)
 
-                # Error message
+                # Error message if move not valid
                 if not valid:
                     input('Cannot place a ' + self.reference[x] +
                           ' there. Either the stern is out of the board or collides it with another ship.\nPlease take '
                           'a look at the board and try again.\nHit ENTER to continue\n')
-                # Places the ship
                 else:
                     for y in range(self.userShips[x]):
                         if orientation == 'v':

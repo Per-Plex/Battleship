@@ -1,7 +1,7 @@
 # Battleship (CMPUT 175 solo assignment)
   [Rules of battle ship](https://en.wikipedia.org/wiki/Battleship_(game))
   
-# Status: In-progress (03/222016)
+# Status: In-progress (03/22/2016)
 
 # Current Features
 - Simple command line display
@@ -18,4 +18,4 @@
 
 # How To Play
 
-Currently you can only play it with Python 3.4+ and the nessary dependencies installed.
+Currently you can only play it with Python 3.4+ and the necessary dependencies installed.

@@ -1,13 +1,13 @@
 # Battleship (CMPUT 175 Assignment 4)
   [Rules of battleship](https://en.wikipedia.org/wiki/Battleship_(game))
   
-# Status: In-progress (03/22/2016)
+# Status: In-progress (04/11/2016)
 
 # Current Features
-- Simple command line display
+- Improved command line display
 - Simple command line input
 - Class for board state
-- AI chooses location to hit at random
+- AI now uses Parity/target mode 
 
 # Future Features
 - Fully interactive GUI

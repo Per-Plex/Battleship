@@ -1,7 +1,7 @@
 # Battleship (CMPUT 175 Assignment 4-5)
   [Rules of battleship](https://en.wikipedia.org/wiki/Battleship_(game))
   ---
-  I recieved insperation from this [artcle](http://www.datagenetics.com/blog/december32011/) in regards to the PDF AI. They have alot of interesting content all about data and databases thats definitely worth worth checking out. 
+  I recieved insperation from this [artcle](http://www.datagenetics.com/blog/december32011/) in regards to the PDF AI. They have alot of interesting content all about data and databases thats definitely worth checking out. 
   
 # Status: In-progress (01/06/2016)
 

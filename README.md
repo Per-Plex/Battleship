@@ -8,7 +8,7 @@
 - Simple command line input
 - Class for board state
 - Difficulty selector
-- AI now uses hunt (with parity)/target mode on medium difficulty
+- AI uses hunt (with parity)/target mode on medium difficulty
 - New welcome screen
 - Hard difficulty uses a PDF algorthim for hunt and a standard target mode
 

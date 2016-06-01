@@ -1,6 +1,6 @@
 __author__ = 'Ceegan'
 
-import random
+import random, operator
 letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
 possible_positions = []
 
@@ -10,8 +10,8 @@ class BattleshipGame():
         self.computerBoard = [[' ' for x in range(10)] for x in range(10)]
         self.userShips = {'A': 5, 'B': 4, 'S': 3, 'D': 3, 'P': 2}
         self.computerShips = {'A': 5, 'B': 4, 'S': 3, 'D': 3, 'P': 2}
-        self.reference = {'A': 'Aircraft Carrier', 'B': 'Battleship', 'S': 'Submarine', 'D': 'Destroyer',
-                          'P': 'Patrol Boat'}
+        self.reference = {'A': ['Aircraft Carrier', 5], 'B': ['Battleship', 4], 'S': ['Submarine', 3],
+                          'D': ['Destroyer', 3], 'P': ['Patrol Boat', 2]}
         self.round = 0
         self.hits = [0, 0]
         self.misses = [0, 0]
@@ -69,9 +69,8 @@ class BattleshipGame():
                     elif self.sunk[0][z] and self.sunk[1][z]:
                         line += ' '*17 + '%s' % self.sunk[0][z] + ' '*(18-len(self.sunk[0][z])) + '%s\n' % self.sunk[1][z]
                         z += 1
-                    elif self.sunk[0][z] and not self.sunk[1][z] and not done:
+                    elif self.sunk[0][z] and not self.sunk[1][z]:
                         line += ' '*17 + '%s\n' % self.sunk[0][z]
-                        done = True
                         z += 1
                     else:
                         line += '\n'
@@ -80,6 +79,7 @@ class BattleshipGame():
             else:
                 line += '\n'
         print(line)
+        #print(self.sunk)
 
     # Validates placement of the ships when placing
     def validatePlacement(self, computer, size, x, y, orientation):
@@ -134,7 +134,7 @@ class BattleshipGame():
                 orientation = 'n'
                 number = False
                 coordinates = ['Z', None]
-                print('Placing a ' + self.reference[x] + ' of size ' + str(self.userShips[x]))
+                print('Placing a ' + self.reference[x][0] + ' of size ' + str(self.userShips[x]))
 
                 # Validates the input
                 while coordinates[0] not in letters or not number:
@@ -165,9 +165,10 @@ class BattleshipGame():
 
                 # Error message
                 if not valid:
-                    input('Cannot place a ' + self.reference[x] +
+                    input('Cannot place a ' + self.reference[x][0] +
                           ' there. Either the stern is out of the board or collides it with another ship.\nPlease take '
                           'a look at the board and try again.\nHit ENTER to continue\n')
+
                 # Places the ship
                 else:
                     for y in range(self.userShips[x]):
@@ -188,13 +189,12 @@ class BattleshipGame():
             ships = self.computerShips
         for x in ships:
             if ships[x] != 0:
-                sink.append(self.reference[x])
+                sink.append(self.reference[x][0])
             else:
-                sunk.append(self.reference[x])
+                sunk.append(self.reference[x][0])
         line += '['
         for x in sink:
             line += x + ' '
-
         line += '] Ships sunk:['
         for x in sunk:
             line += x + ' '
@@ -242,7 +242,7 @@ class BattleshipGame():
                         # Adds the sunk ship to the first empty spot
                         while self.sunk[0][z]:
                             z += 1
-                        self.sunk[0][z] = self.reference[old]
+                        self.sunk[0][z] = self.reference[old][0]
                 else:
                     self.hits[1] += 1
                     if sunk:
@@ -252,7 +252,7 @@ class BattleshipGame():
                         # Adds the sunk ship to the first empty spot
                         while self.sunk[1][z]:
                             z += 1
-                        self.sunk[1][z] = self.reference[old]
+                        self.sunk[1][z] = self.reference[old][0]
             else:
                 board[x][y] = '*'
                 if computer:
@@ -275,68 +275,159 @@ class BattleshipGame():
     def incrementRounds(self):
         self.round += 1
 
-    # Gets the hits made (Never called)
-    def getHits(self, computer):
-        if computer:
-            return self.hits[0]
-        return self.hits[1]
+    # Checks ahead and behind the current cell to see if there is a limit
+    def check_ahead_behind(self, x, y, size):
+        limit = [[5, 5], [5, 5]]
+        found = [False, False, False, False]
+        over = [False, False, False, False]
+        for z in range(1, size):
+            if x - z >= 0:
+                if (self.userBoard[y][x-z] == '*' or self.userBoard[y][x-z] == "#") and not found[0]:
+                    limit[0][1] = z
+                    found[0] = True
+            elif not over[0] and not found[0]:
+                limit[0][1] = z
+                over[0] = True
+            if x + z <= 9:
+                if (self.userBoard[y][x+z] == '*' or self.userBoard[y][x+z] == "#") and not found[1]:
+                    limit[0][0] = z
+                    found[1] = True
+            elif not over[1] and not found[1]:
+                limit[0][0] = z
+                over[1] = True
+            if y - z >= 0:
+                if (self.userBoard[y-z][x] == "*" or self.userBoard[y-z][x] == "#") and not found[2]:
+                    limit[1][1] = z
+                    found[2] = True
+            elif not over[2] and not found[2]:
+                limit[1][1] = z
+                over[2] = True
+            if y + z <= 9:
+                if (self.userBoard[y+z][x] == "*" or self.userBoard[y+z][x] == "#") and not found[3]:
+                    limit[1][0] = z
+                    found[3] = True
+            elif not over[3] and not found[3]:
+                limit[1][0] = z
+                over[3] = True
 
-    # Gets the misses made (Never called)
-    def getMisses(self, computer):
-        if computer:
-            return self.hits[0]
-        return self.hits[1]
+        return limit
 
     # Makes the move for the computer
-    def AI_move(self, coordinates, target):
-
-        # Converts the number back into int from a str because of displaying
-        coordinates[1] = int(coordinates[1])
-
-        # Searches the board for a ship
-        if not target:
-            coordinates[1] += 2
-
-            # Bumps its search down a row
-            if coordinates[1] == 10:
-                coordinates = [coordinates[0] + 1, coordinates[1]-9]
-            elif coordinates[1] == 11:
-                coordinates = [coordinates[0] + 1, coordinates[1]-11]
-
-            # Coming back from target mode into hunt mode
-            while self.userBoard[coordinates[0]][coordinates[1]] == '#' or\
-                            self.userBoard[coordinates[0]][coordinates[1]] == '*':
-                coordinates[1] += 2
-                if coordinates[1] == 10:
-                    coordinates = [coordinates[0] + 1, coordinates[1]-9]
-                elif coordinates[1] == 11:
-
-                    coordinates = [coordinates[0] + 1, coordinates[1]-11]
+    def AI_move(self, coordinates, target, diff):
+        global possible_positions
+        if diff == "1":
+            coordinates = [letters.index(random.choice(letters)), random.randint(0, 9)]
         else:
+            # Converts the number back into int from a str because of displaying
+            coordinates[1] = int(coordinates[1])
 
-            # Appends the possible hit position (N, E, S, W)
-            if coordinates[0] - 1 >= 0 and self.userBoard[coordinates[0] - 1][coordinates[1]] != '#' and\
-                            self.userBoard[coordinates[0] - 1][coordinates[1]] != '*' and\
-                            [coordinates[0] - 1, coordinates[1]] not in possible_positions:
-                possible_positions.append([coordinates[0] - 1, coordinates[1]])
-            if coordinates[1] + 1 < 10 and self.userBoard[coordinates[0]][coordinates[1] + 1] != '#' and\
-                            self.userBoard[coordinates[0]][coordinates[1] + 1] != '*' and\
-                            [coordinates[0], coordinates[1] + 1] not in possible_positions:
-                possible_positions.append([coordinates[0], coordinates[1] + 1])
-            if coordinates[0] + 1 < 10 and self.userBoard[coordinates[0] + 1][coordinates[1]] != '#' and\
-                            self.userBoard[coordinates[0] + 1][coordinates[1]] != '*' and\
-                            [coordinates[0] + 1, coordinates[1]] not in possible_positions:
-                possible_positions.append([coordinates[0] + 1, coordinates[1]])
-            if coordinates[1] - 1 >= 0 and self.userBoard[coordinates[0]][coordinates[1] - 1] != '#' and\
-                            self.userBoard[coordinates[0]][coordinates[1] - 1] != '*' and\
-                            [coordinates[0], coordinates[1] - 1] not in possible_positions:
-                possible_positions.append([coordinates[0], coordinates[1] - 1])
+            # Searches the board for a ship
+            if not target:
+                possible_positions = []
+                if diff == "2":
+                    coordinates[1] += 2
 
-            # Pops the last append position for the AI to hit
-            coordinates = possible_positions.pop()
+                    # Bumps its search down a row
+                    if coordinates[1] == 10:
+                        coordinates = [coordinates[0] + 1, coordinates[1]-9]
+                    elif coordinates[1] == 11:
+                        coordinates = [coordinates[0] + 1, coordinates[1]-11]
+
+                    # Coming back from target mode into hunt mode
+                    while self.userBoard[coordinates[0]][coordinates[1]] == '#' or\
+                                    self.userBoard[coordinates[0]][coordinates[1]] == '*':
+                        coordinates[1] += 2
+                        if coordinates[1] == 10:
+                            coordinates = [coordinates[0] + 1, coordinates[1]-9]
+                        elif coordinates[1] == 11:
+                            coordinates = [coordinates[0] + 1, coordinates[1]-11]
+                else:
+                    possiblelocation = [[0 for x in range(10)] for x in range(10)]
+                    largest = 0
+                    available_cells = [-1, -1]
+                    available_ships = []
+                    for key in self.userShips:
+                        available_ships.append(self.userShips[key])
+                        if self.userShips[key] > largest:
+                            largest = self.userShips[key]
+                    # Finds the PDF for each cell
+                    for y in range(10):
+                        for x in range(10):
+                            if self.userBoard[y][x] == "*" or self.userBoard[y][x] == "#":
+                                possiblelocation[y][x] = 0
+                            else:
+                                limit = self.check_ahead_behind(y, x, largest)
+                                available_cells = [(limit[0][0] + limit[0][1]) - 1, (limit[1][0] + limit[1][1]) - 1]
+                                for ship in available_ships:
+                                    for orientation in range(2):
+                                        if ship == available_cells[orientation]:
+                                            possiblelocation[y][x] += 1
+                                        elif limit[orientation][1] < limit[orientation][0]:
+                                            if available_cells[orientation] >= ship:
+                                                if ship >= limit[orientation][1]:
+                                                    possiblelocation[y][x] += limit[orientation][1]
+                                                else:
+                                                    possiblelocation[y][x] += ship
+                                        elif limit[orientation][0] < limit[orientation][1]:
+                                            if available_cells[orientation] >= ship:
+                                                if ship >= limit[orientation][0]:
+                                                    possiblelocation[y][x] += limit[orientation][0]
+                                                else:
+                                                    possiblelocation[y][x] += ship
+                                        else:
+                                            if available_cells[orientation] >= ship:
+                                                if ship <= limit[orientation][0]:
+                                                    possiblelocation[y][x] += ship
+                                                else:
+                                                    possiblelocation[y][x] += (available_cells[orientation] - ship) + 1
+                    biggest = [[0, 0, 0]]
+                    for y in range(10):
+                        for x in range(10):
+                            if possiblelocation[y][x] > biggest[0][0]:
+                                biggest[0] = [possiblelocation[y][x], y, x]
+                    #for x in possiblelocation:
+                     #   print(x)
+                    coordinates = [biggest[0][1], biggest[0][2]]
+
+            else:
+                # Appends the possible hit position (N, E, S, W)
+                if coordinates[0] - 1 >= 0 and self.userBoard[coordinates[0] - 1][coordinates[1]] != '#' and\
+                                self.userBoard[coordinates[0] - 1][coordinates[1]] != '*' and\
+                                [coordinates[0] - 1, coordinates[1]] not in possible_positions:
+                    possible_positions.append([coordinates[0] - 1, coordinates[1]])
+                if coordinates[1] + 1 < 10 and self.userBoard[coordinates[0]][coordinates[1] + 1] != '#' and\
+                                self.userBoard[coordinates[0]][coordinates[1] + 1] != '*' and\
+                                [coordinates[0], coordinates[1] + 1] not in possible_positions:
+                    possible_positions.append([coordinates[0], coordinates[1] + 1])
+                if coordinates[0] + 1 < 10 and self.userBoard[coordinates[0] + 1][coordinates[1]] != '#' and\
+                                self.userBoard[coordinates[0] + 1][coordinates[1]] != '*' and\
+                                [coordinates[0] + 1, coordinates[1]] not in possible_positions:
+                    possible_positions.append([coordinates[0] + 1, coordinates[1]])
+                if coordinates[1] - 1 >= 0 and self.userBoard[coordinates[0]][coordinates[1] - 1] != '#' and\
+                                self.userBoard[coordinates[0]][coordinates[1] - 1] != '*' and\
+                                [coordinates[0], coordinates[1] - 1] not in possible_positions:
+                    possible_positions.append([coordinates[0], coordinates[1] - 1])
+                print(possible_positions)
+                # Pops the last append position for the AI to hit
+                coordinates = possible_positions.pop()
         return coordinates
 
 def main():
+    diff = 0
+    welcome = """
+ __      __       .__                                  __           __________         __    __  .__                .__    .__
+/  \    /  \ ____ |  |   ____  ____   _____   ____   _/  |_  ____   \______   \_____ _/  |__/  |_|  |   ____   _____|  |__ |__|_____
+\   \/\/   // __ \|  | _/ ___\/  _ \ /     \_/ __ \  \   __\/  _ \   |    |  _/\__  \\\   __\   __\  | _/ __ \ /  ___/  |  \|  \____ \\
+ \        /\  ___/|  |_\  \__(  <_> )  Y Y  \  ___/   |  | (  <_> )  |    |   \ / __ \|  |  |  | |  |_\  ___/ \___ \|   Y  \  |  |_> >
+  \__/\  /  \___  >____/\___  >____/|__|_|  /\___  >  |__|  \____/   |______  /(____  /__|  |__| |____/\___  >____  >___|  /__|   __/
+       \/       \/          \/            \/     \/                         \/      \/                     \/     \/     \/   |__|
+"""
+    print(welcome)
+    while diff != "1" and diff != "2" and diff != "3":
+        diff = input("\nPlease select a difficulty:\n1. Easy   (AI randomly shoots)\n2. Medium (AI uses hunt"
+              ", with parity, and target)\n3. Hard   (AI uses hunt, witgh PDF algorthim, and target)\n\n>")
+
+
     # Initialize the board and all the placements of ships
     board = BattleshipGame()
     board.comupterPlace()
@@ -358,7 +449,7 @@ def main():
             if player:
                 coordinates = ['Z', None]
                 if board.round != 0:
-                    board.drawBoards(True)
+                    board.drawBoards(False)
 
                 # Error trap till correct input
                 while coordinates[0] not in letters or not number:
@@ -378,14 +469,14 @@ def main():
             else:
 
                 # Calls the move for the AI
-                coordinates = board.AI_move(AI_coordinates, target)
+                coordinates = board.AI_move(AI_coordinates, target, diff)
                 AI_coordinates = coordinates
+
                 content = board.makeA_Move(True, coordinates[0], coordinates[1])
             coordinates[1] = str(coordinates[1])
 
             # Message if you already chose that cell
-            if content[0] == '*' or content[0] == '#':
-                if player:
+            if (content[0] == '*' or content[0] == '#') and player:
                     print('Sorry, ' + coordinates[0] + ' ' + coordinates[1] + ' was already played. Try again.\n')
 
         # Different messages based on if you hit or missed
@@ -419,27 +510,15 @@ def main():
                 recent_hit = coordinates
 
                 # Clears the possible positions and increments the hits
-                possible_positions = []
+                #possible_positions = []
                 hits += 1
 
         # If a ship was sunk
         if content[1]:
             if not player:
 
-                # Finds the length for the ship it sunk
-                if content[0] == 'A':
-                    length = 5
-                elif content[0] == 'B':
-                    length = 4
-                elif content[0] == 'D':
-                    length = 3
-                elif content[0] == 'S':
-                    length = 3
-                else:
-                    length = 2
-
                 # Checks to see if the hits equals the length of the ship sunk
-                if hits != length:
+                if hits != board.reference[content[0]][1]:
                     hits = 1
                 else:
                     target = False
@@ -447,11 +526,11 @@ def main():
 
                 # Resets the AI position back to where it first made a hit
                 AI_coordinates = first_hit
-                possible_positions = []
+                #possible_positions = []
             if player:
-                print("You've sunk the enemy %s" % board.reference[content[0]])
+                print("You've sunk the enemy %s" % board.reference[content[0]][0])
             else:
-                print("The enemy has sunk our %s " % board.reference[content[0]])
+                print("The enemy has sunk our %s " % board.reference[content[0]][0])
             input('Press RETURN to continue\n')
         # Flips the player
         player = not player
@@ -460,7 +539,6 @@ def main():
     if not player:
         print('Congratulations! User WON!')
     else:
-
         print('Sorry, the enemy has sunk your fleet')
 
 if __name__ == '__main__':

@@ -407,7 +407,7 @@ class BattleshipGame():
                                 self.userBoard[coordinates[0]][coordinates[1] - 1] != '*' and\
                                 [coordinates[0], coordinates[1] - 1] not in possible_positions:
                     possible_positions.append([coordinates[0], coordinates[1] - 1])
-                print(possible_positions)
+                #print(possible_positions)
                 # Pops the last append position for the AI to hit
                 coordinates = possible_positions.pop()
         return coordinates

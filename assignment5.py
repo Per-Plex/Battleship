@@ -1,6 +1,6 @@
 __author__ = 'Ceegan'
 
-import random, operator
+import random
 letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
 possible_positions = []
 

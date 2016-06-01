@@ -449,7 +449,7 @@ def main():
             if player:
                 coordinates = ['Z', None]
                 if board.round != 0:
-                    board.drawBoards(False)
+                    board.drawBoards(True)
 
                 # Error trap till correct input
                 while coordinates[0] not in letters or not number:

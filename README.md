@@ -21,4 +21,4 @@
 
 # How To Play
 
-Currently you can only play it with Python 3.4+ and the necessary dependencies installed.
+Currently you can only play it with Python 3.4+ and the necessary dependencies installed(no current dependencies neded).

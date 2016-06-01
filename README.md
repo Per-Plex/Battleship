@@ -1,4 +1,4 @@
-# Battleship (CMPUT 175 Assignment 4)
+# Battleship (CMPUT 175 Assignment 4-5)
   [Rules of battleship](https://en.wikipedia.org/wiki/Battleship_(game))
   
 # Status: In-progress (01/06/2016)

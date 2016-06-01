@@ -425,7 +425,7 @@ def main():
     print(welcome)
     while diff != "1" and diff != "2" and diff != "3":
         diff = input("\nPlease select a difficulty:\n1. Easy   (AI randomly shoots)\n2. Medium (AI uses hunt"
-              ", with parity, and target)\n3. Hard   (AI uses hunt, witgh PDF algorthim, and target)\n\n>")
+              ", with parity, and target)\n3. Hard   (AI uses hunt, with PDF algorthim, and target)\n\n>")
 
 
     # Initialize the board and all the placements of ships

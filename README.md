@@ -21,7 +21,6 @@
 - Sounds
 - Saving and loading states
 - PDF based target and hunt mode
-- Able to place the ships via mouse or keyboard arrow keys
 
 # How To Play
 

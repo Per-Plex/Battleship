@@ -3,7 +3,7 @@
   ---
   I recieved insperation from this [article(suck my dick stepan)](http://www.datagenetics.com/blog/december32011/) in regards to the PDF AI. They have alot of interesting content all about data and databases thats definitely worth checking out. 
   
-# Status: In-progress (01/06/2016)
+# Status: In-progress (07/06/2016)
 
 # Current Features
 - Improved command line display

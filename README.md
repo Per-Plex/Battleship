@@ -15,7 +15,6 @@
 
 # Future Features
 - Fully interactive GUI
-- GUI that scales on any resolution
 - Main menu
 - Sounds
 - Saving and loading states

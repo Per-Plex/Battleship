@@ -12,7 +12,6 @@
 - AI uses hunt (with parity) and target mode on medium difficulty
 - New welcome screen
 - Hard difficulty uses a PDF algorthim for hunt and a standard target mode
-- Base template for GUI
 - Fully interactive GUI
 - Main menu
 

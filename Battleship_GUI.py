@@ -1,4 +1,4 @@
-import pygame, sys, random, copy
+import pygame, sys, random, copy, ast
 
 # Number of frames per second
 # Change this value to speed up or slow down the game
@@ -48,7 +48,7 @@ class BattleshipGame:
         text("Computer's Board:" + ' '*36 + "User's Board:" + ' '*37 + 'Round: ' + str(self.round), 75, 25, 'med')
         text(column_index + ' '*11 + column_index, 75, 75, 'med')
         for x in range(10):
-            line = letters[x]
+            write_obj = letters[x]
             z = 0
             for y in range(10):
                 if hide:
@@ -59,14 +59,14 @@ class BattleshipGame:
                            (x, y), border=2, color=WHITE, size='med')
                 z += 1
             if x == 8:
-                line += ' '*70 + letters[x]
+                write_obj += ' '*70 + letters[x]
             else:
-                line += ' '*68 + letters[x]
+                write_obj += ' '*68 + letters[x]
             z = 0
             for y in self.userBoard[x]:
                 Button(y, 622+(50*z), 105+(40*x), 50, 40, 'None', border=2, color=WHITE, size='med')
                 z += 1
-            text(line, 25, 115+(40*x), 'med')
+            text(write_obj, 25, 115+(40*x), 'med')
         if len(messages) >= 21:
             for x in range(len(messages) - 20):
                 messages.pop()
@@ -88,7 +88,7 @@ class BattleshipGame:
         text('Hits              : ' + str(self.hits[0]) + ' '*Hspace + str(self.hits[1]), 5, 550, 'med')
         text('Missess       : ' + str(self.misses[0]) + ' '*Mspace + str(self.misses[1]), 5, 590, 'med')
         text('Ships sunk : ' + str(self.sunk[0][0]) + ' '*69 + str(self.sunk[1][0]), 5, 630, 'med')
-        Button('Save Game', 1170, 735, 200, 50, 'save_game()', size='med')
+        Button('Save Game', 1170, 735, 200, 50, 'board.save_game()', size='med')
 
     # Validates placement of the ships when placing
     def validatePlacement(self, computer, size, x, y, orientation):
@@ -141,7 +141,7 @@ class BattleshipGame:
         text("and enter to place the ship on the board. Ships cannot overlap or go outside the", 135, 155, 'med')
         text("bounds of the grid.", 135, 195, 'med')
         for x in range(10):
-            line = letters[x]
+            write_obj = letters[x]
             z = 0
             for y in user_board[x]:
                 Button(y, 100+(50*z), 235+(40*x), 50, 40, 'None', border=2, color=WHITE, size='med')
@@ -230,7 +230,7 @@ class BattleshipGame:
 
     # Gets all the sunk and to be sunk ships
     def getEnemyFleet(self, computer):
-        line = 'Ships to sink:'
+        write_obj = 'Ships to sink:'
         sink = []
         sunk = []
         if computer:
@@ -242,14 +242,14 @@ class BattleshipGame:
                 sink.append(self.reference[x][0])
             else:
                 sunk.append(self.reference[x][0])
-        line += '['
+        write_obj += '['
         for x in sink:
-            line += x + ' '
-        line += '] Ships sunk:['
+            write_obj += x + ' '
+        write_obj += '] Ships sunk:['
         for x in sunk:
-            line += x + ' '
-        line += ']'
-        print(line)
+            write_obj += x + ' '
+        write_obj += ']'
+        print(write_obj)
 
     # Checks to see if you have won
     def checkWinning(self, computer):
@@ -479,6 +479,71 @@ class BattleshipGame:
                 coordinates = possible_positions.pop()
         return coordinates
 
+    def save_game(self):
+        try:
+            file = open("save_game.ship", "w")
+            write_obj = str(self.userShips) + ';' + str(self.computerShips) + ';' + str(self.round) + ';' \
+                        + str(self.hits) + ';' + str(self.misses) + ';' + str(diff)
+            write_obj += '\n'
+            for x in range(2):
+                if x == 0:
+                    write_board = self.userBoard
+                else:
+                    write_board = self.computerBoard
+                for row in range(10):
+                    write_obj += str(write_board[row])
+                    if row != 9:
+                        write_obj += ','
+                write_obj += '\n'
+            file.write(write_obj)
+            messages.insert(0, 'Game Saved')
+            file.close()
+        except IOError:
+            messages.insert(0, 'Error saving game')
+
+    def load_game(self):
+        global diff
+        try:
+            file = open('save_game.ship', 'r')
+            x = 0
+            for line in file:
+                if x == 0:
+                    data = line.split(';')
+                    self.reset_type(False, True, data[0])
+                    self.reset_type(True, True, data[1])
+                    self.round = int(data[2])
+                    self.reset_type(True, False, data[3])
+                    self.reset_type(False, False, data[4])
+                    diff = int(data[5])
+                else:
+                    if x == 1:
+                        self.userBoard = ast.literal_eval(line)
+                    else:
+                        self.computerBoard = ast.literal_eval(line)
+                x += 1
+            global placed
+            placed = True
+        except IOError:
+            messages.insert(0, 'Failed to load game')
+
+    def reset_type(self, computer, dic, data):
+        if dic:
+            if computer:
+                ships = self.computerShips
+            else:
+                ships = self.userShips
+            ships = ast.literal_eval(data)
+            for key in ships:
+                ships[key] = int(ships[key])
+        else:
+            data = ast.literal_eval(data)
+            for x in range(len(data)):
+                data[x] = int(data[x])
+            if computer:
+                self.hits = data
+            else:
+                self.misses = data
+
 
 class Button:
     def __init__(self, msg, x, y, w, h, function, border=0, color=BLACK, size="lrg"):
@@ -495,8 +560,8 @@ class Button:
 
         # draws the Button
         self.draw_Button()
-
-        buttons.append(self)
+        if function != 'None':
+            buttons.append(self)
 
     def draw_Button(self):
         pygame.draw.rect(Surface, (115, 115, 115), (self.x, self.y, self.w, self.h), self.border)
@@ -548,22 +613,25 @@ def end_game(player):
         text('the emeny fleet!!', 450, 235, 'lrg')
     else:
         text('The enemy has sunk your fleet!!', 150, 155, 'lrg')
-    Button('New Game', (win_width/2) - 150, 315, 300, 50, 'new_game()')
+    Button('New Game', (win_width/2) - 150, 315, 300, 50, 'new_game(True)')
 
 
 def home_screen():
+    global board
+    board = BattleshipGame()
     delete_buttons()
     text('Battleship', win_width/2 - 200, 25, 'lrg')
     image = pygame.image.load('pieces.png')
     Surface.blit(image, ((win_width/2) - 450, 110))
-    Button('New Game', (win_width/2) - 150, 375, 300, 50, 'new_game()')
-    Button('Load Game', (win_width/2) - 150, 450, 300, 50, 'load_game()')
+    Button('New Game', (win_width/2) - 150, 375, 300, 50, 'new_game(False)')
+    Button('Load Game', (win_width/2) - 150, 450, 300, 50, 'board.load_game()')
 
 
-def new_game():
-     # Initialize the board and placements of computer ships
-    global board, placed
-    board = BattleshipGame()
+def new_game(new):
+    # Initialize the board and placements of computer ships
+    global placed, board
+    if new:
+        board = BattleshipGame()
     board.comupterPlace()
     placed = False
 
@@ -617,6 +685,7 @@ def main():
                 for button in buttons:
                     if button.check_clicked():
                         button.execute()
+                        print('hello')
                         if placed:
                             update = True
                             player = not player
@@ -624,10 +693,9 @@ def main():
         if update:
             if not player:
                 content = ['*', None]
-                while content[0] == '*' or content[0] == '#':
-                    coordinates = board.AI_move(AI_coordinates, target)
-                    AI_coordinates = coordinates
-                    content = board.makeA_Move(True, coordinates[0], coordinates[1])
+                coordinates = board.AI_move(AI_coordinates, target)
+                AI_coordinates = coordinates
+                content = board.makeA_Move(True, coordinates[0], coordinates[1])
                 if diff != 1:
                     if content[0] == ' ':
                         if target:
@@ -665,7 +733,6 @@ def main():
             else:
                 board.draw_main_screen(False)
             update = False
-
 
         # Updates the display
         pygame.display.update()

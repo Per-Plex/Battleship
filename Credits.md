@@ -9,7 +9,7 @@
   
 ###RPG Maker 2000/2003
   
-  - Water Tile Background
+  - Water Tile (Background)
   
 ###Navy Administration
 

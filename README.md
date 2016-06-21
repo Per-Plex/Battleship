@@ -13,14 +13,15 @@
 - New welcome screen
 - Hard difficulty uses a PDF algorthim for hunt and a standard target mode
 - Base template for GUI
-
-# Future Features
 - Fully interactive GUI
 - Main menu
+
+# Future Features
 - Sounds
 - Saving and loading states
 - PDF based target and hunt mode
 
 # How To Play
 
-Currently you can only play it with Python 3.4+ and the necessary dependencies installed (no current dependencies needed).
+For people just wanting to use the command line version you can use any version of Python 3.0+ 
+For the GUI version you will need python 3.2.X and the necessary dependencies installed

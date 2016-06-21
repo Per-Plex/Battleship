@@ -24,10 +24,10 @@
     - Hard difficulty uses a PDF algorthim for hunt and a standard target mode
 
 
-# Future Features
-- Sounds
-- PDF based target and hunt mode
-- Packaged .exe file for simple use
+### Future Features
+    - Sounds
+    - PDF based target and hunt mode
+    - Packaged .exe file for simple use
 
 # How To Play
 

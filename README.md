@@ -7,7 +7,7 @@
 
 # Current Features
 - Improved command line display
-- Class for board state
+- Class for board state and buttons
 - Difficulty selector
 - AI uses hunt (with parity) and target mode on medium difficulty
 - New welcome screen

@@ -9,11 +9,13 @@
 ##CLI
  - Improved command line display
  - New welcome screen
+ 
 ##GUI
  - Class for buttons
  - Fully interactive GUI
  - Main menu
  - Saving and loading states
+ 
 ##Both
 - Class for board state 
 - Difficulty selector

@@ -2,7 +2,7 @@
 
   Thank you to all who let me use thier images as I am by no means a graphics designer.
   ***
-###The Noun Project Sources
+###The Noun Project
 
   - Battleship - Created by Anand Prahlad
   - Submarine - Created By Lke Anthony Firth

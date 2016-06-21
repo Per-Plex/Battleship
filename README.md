@@ -24,4 +24,5 @@
 # How To Play
 
 For people just wanting to use the command line version you can use any version of Python 3.0+ 
+
 For the GUI version you will need python 3.2.X and the necessary dependencies installed

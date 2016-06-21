@@ -10,10 +10,6 @@
 ###RPG Maker 2000/2003
   
   - Water Tile (Background)
-  
-###Navy Administration
-
-  - [Patro Boat](http://navyadministration.tpub.com/12968a/img/12968a_59_5.jpg)
 
 ***
 

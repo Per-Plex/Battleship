@@ -1,10 +1,10 @@
-import pygame, sys, random
+import pygame, sys, random, copy
 
 # Number of frames per second
-# Change this value to speed up or slow down your game
+# Change this value to speed up or slow down the game
 FPS = 200
 
-# Global Variables to be used through our program
+# Width and height of the window
 win_width = 1400
 win_height = 800
 
@@ -16,7 +16,17 @@ WHITE = (217, 217, 217)
 # Row letters
 letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
 
-class BattleshipGame():
+# Stores Button objects
+buttons = []
+
+# Difficulty
+diff = 0
+
+# Old content of selected cell
+placed = False
+
+
+class BattleshipGame:
     def __init__(self):
         self.userBoard = [[' ' for x in range(10)] for x in range(10)]
         self.computerBoard = [[' ' for x in range(10)] for x in range(10)]
@@ -30,20 +40,23 @@ class BattleshipGame():
         self.sunk = [[0, None, None, None, None, None], [0, None, None, None, None, None]]
 
     # Displays the board
-    def drawBoards(self, hide, background):
+    def draw_main_screen(self, hide):
+        delete_buttons()
         column_index = '1    2    3    4    5    6    7     8    9   10'
         Surface.fill((0, 0, 0))
         Surface.blit(background, (0, 0))
-        text("Computer's Board:" + ' '*36 + "User's Board:" + ' '*37 + 'Round: ' + str(self.round), 75, 25)
-        text(column_index + ' '*11 + column_index, 75, 75)
+        text("Computer's Board:" + ' '*36 + "User's Board:" + ' '*37 + 'Round: ' + str(self.round), 75, 25, 'med')
+        text(column_index + ' '*11 + column_index, 75, 75, 'med')
         for x in range(10):
             line = letters[x]
             z = 0
-            for y in self.computerBoard[x]:
+            for y in range(10):
                 if hide:
-                    button(' ', 55+(50*z), 105+(40*x), 50, 40, 2, WHITE)
+                    Button(' ', 55+(50*z), 105+(40*x), 50, 40, 'board.makeA_Move(False, %s, %d)' %
+                           (x, y), border=2, color=WHITE, size='med')
                 else:
-                    button(y, 55+(50*z), 105+(40*x), 50, 40, 2, WHITE, 'med')
+                    Button(self.computerBoard[x][y], 55+(50*z), 105+(40*x), 50, 40, 'board.makeA_Move(False, %s, %d)' %
+                           (x, y), border=2, color=WHITE, size='med')
                 z += 1
             if x == 8:
                 line += ' '*70 + letters[x]
@@ -51,16 +64,31 @@ class BattleshipGame():
                 line += ' '*68 + letters[x]
             z = 0
             for y in self.userBoard[x]:
-                button(y, 622+(50*z), 105+(40*x), 50, 40, 2, WHITE, size='med')
+                Button(y, 622+(50*z), 105+(40*x), 50, 40, 'None', border=2, color=WHITE, size='med')
                 z += 1
-            text(line, 25, 115+(40*x))
-        text("Computer's Stats:", 195, 515)
-        text("User's Stats:", 760, 515)
-        text('Hits              : ' + str(self.hits[0]) + ' '*69 + str(self.hits[1]), 5, 550)
-        text('Missess       : ' + str(self.misses[0]) + ' '*69 + str(self.misses[1]), 5, 590)
-        text('Ships sunk : ' + str(self.sunk[0][0]) + ' '*69 + str(self.sunk[1][0]), 5, 630)
-        button('Save Game', 950, 735, 200, 50, size='med')
-        button('Instructions', 1170, 735, 200, 50, size='med')
+            text(line, 25, 115+(40*x), 'med')
+        if len(messages) >= 21:
+            for x in range(len(messages) - 20):
+                messages.pop()
+        for x in range(len(messages) - 1):
+            if x % 2 == 0:
+                text(messages[x], 1130, 490-(x*20), 'sml')
+            else:
+                text(messages[x], 1130, 490-(x*20), 'sml', color=(153, 153, 153))
+        text("Computer's Stats:", 195, 515, 'med')
+        text("User's Stats:", 760, 515, 'med')
+        if self.misses[0] > 9:
+            Mspace = 67
+        else:
+            Mspace = 69
+        if self.hits[0] > 9:
+            Hspace = 67
+        else:
+            Hspace = 69
+        text('Hits              : ' + str(self.hits[0]) + ' '*Hspace + str(self.hits[1]), 5, 550, 'med')
+        text('Missess       : ' + str(self.misses[0]) + ' '*Mspace + str(self.misses[1]), 5, 590, 'med')
+        text('Ships sunk : ' + str(self.sunk[0][0]) + ' '*69 + str(self.sunk[1][0]), 5, 630, 'med')
+        Button('Save Game', 1170, 735, 200, 50, 'save_game()', size='med')
 
     # Validates placement of the ships when placing
     def validatePlacement(self, computer, size, x, y, orientation):
@@ -105,59 +133,100 @@ class BattleshipGame():
                 else:
                     self.computerBoard[x_axis][y_axis+y] = x
 
+    def draw_user_place_screen(self, user_board):
+        Surface.fill((0, 0, 0))
+        Surface.blit(background, (0, 0))
+        text('Place Your Fleet', win_width/2 - 270, 25, 'lrg')
+        text("Use the arrow keys to position your ship, press space bar to flip the orientation,", 135, 115, 'med')
+        text("and enter to place the ship on the board. Ships cannot overlap or go outside the", 135, 155, 'med')
+        text("bounds of the grid.", 135, 195, 'med')
+        for x in range(10):
+            line = letters[x]
+            z = 0
+            for y in user_board[x]:
+                Button(y, 100+(50*z), 235+(40*x), 50, 40, 'None', border=2, color=WHITE, size='med')
+                z += 1
+        text("Fleet", 900, 235, 'lrg')
+        text("A = Aircraft Carrier (5 units)", 750, 325, 'med')
+        text("B = Battleship (4 units)", 750, 365, 'med')
+        text("D = Destroyer (3 units)", 750, 405, 'med')
+        text("S = Submarine (3 units)", 750, 445, 'med')
+        text("P = Patrol Boat (2 units)", 750, 485, 'med')
+
     # Places the user ships
     def userPlace(self):
+        delete_buttons()
+        user_place_board = [[' ' for x in range(10)] for x in range(10)]
+        update, ignore = True, True
+        orientation = 'v'
+        screen = 0
         for x in self.userShips:
-            valid = False
-
-            # Loops through till valid place is chosen
-            while not valid:
-                orientation = 'n'
-                number = False
-                coordinates = ['Z', None]
-                print('Placing a ' + self.reference[x][0] + ' of size ' + str(self.userShips[x]))
-
-                # Validates the input
-                while coordinates[0] not in letters or not number:
-                    coordinates = input('Enter coordinates x y (x in [A..J] and y in [1..10]): ').split(' ')
-                    try:
-                        if len(coordinates) > 1:
-                            coordinates[1] = int(coordinates[1])
-                            if coordinates[1] > 10 or coordinates[1] < 1:
-                                raise ValueError
-                        else:
-                            raise ValueError
-                    except ValueError:
-                        pass
+            x_axis, y_axis = 0, 0
+            finished = False
+            board_copy = copy.deepcopy(user_place_board)
+            while not finished:
+                if not ignore and update:
+                    deep_copy = copy.deepcopy(board_copy)
+                    user_place_board = board_copy
+                    board_copy = deep_copy
+                for y in range(self.userShips[x]):
+                    if orientation == 'v':
+                        user_place_board[y_axis+y][x_axis] = x
                     else:
-                        number = True
+                        user_place_board[y_axis][x_axis+y] = x
+                if update:
+                    self.draw_user_place_screen(user_place_board)
+                    update = False
+                    ignore = False
+                for event in pygame.event.get():
+                    # Quits the game and closes the window
+                    if event.type == pygame.QUIT:
+                        pygame.quit()
+                        sys.exit()
+                    if event.type == pygame.KEYDOWN:
+                        if screen == 0:
+                            if event.key == pygame.K_UP:
+                                if y_axis != 0:
+                                    y_axis -= 1
+                                    update = True
+                            elif event.key == pygame.K_DOWN:
+                                if orientation == 'v':
+                                    limit = 10 - self.userShips[x]
+                                else:
+                                    limit = 9
+                                if y_axis != limit:
+                                    y_axis += 1
+                                    update = True
+                            elif event.key == pygame.K_RIGHT:
+                                if orientation == 'h':
+                                    limit = 10 - self.userShips[x]
+                                else:
+                                    limit = 9
+                                if x_axis != limit:
+                                    x_axis += 1
+                                    update = True
+                            elif event.key == pygame.K_LEFT:
+                                if x_axis != 0:
+                                    x_axis -= 1
+                                    update = True
+                            elif event.key == pygame.K_SPACE:
+                                if orientation == 'v':
+                                    if (x_axis + self.userShips[x]) > 10:
+                                        x_axis = (10 - self.userShips[x])
+                                    orientation = 'h'
+                                else:
+                                    if (y_axis + self.userShips[x]) > 10:
+                                        y_axis = (10 - self.userShips[x])
+                                    orientation = 'v'
+                                update = True
+                            elif event.key == pygame.K_RETURN:
+                                finished = self.validatePlacement(False, self.userShips[x], y_axis, x_axis, orientation)
+                                update = True
+                pygame.display.update()
+            self.userBoard = user_place_board
+        global placed
+        placed = True
 
-                # Validates the orientation
-                while orientation != 'v' and orientation != 'h':
-                    orientation = input('Is this ship vertical or horizontal (v,h)? ').lower()
-                x_axis = letters.index(coordinates[0])
-                y_axis = coordinates[1]-1
-
-                # Checks to make sure the coordinates are valid
-                if orientation == 'v' and x_axis + self.userShips[x] < 11:
-                    valid = self.validatePlacement(False, self.userShips[x], x_axis, y_axis, orientation)
-                elif orientation == 'h' and y_axis + self.userShips[x] < 11:
-                    valid = self.validatePlacement(False, self.userShips[x], x_axis, y_axis, orientation)
-
-                # Error message
-                if not valid:
-                    input('Cannot place a ' + self.reference[x][0] +
-                          ' there. Either the stern is out of the board or collides it with another ship.\nPlease take '
-                          'a look at the board and try again.\nHit ENTER to continue\n')
-
-                # Places the ship
-                else:
-                    for y in range(self.userShips[x]):
-                        if orientation == 'v':
-                            self.userBoard[x_axis+y][y_axis] = x
-                        else:
-                            self.userBoard[x_axis][y_axis+y] = x
-                    self.drawBoards(True)
 
     # Gets all the sunk and to be sunk ships
     def getEnemyFleet(self, computer):
@@ -202,8 +271,9 @@ class BattleshipGame():
         else:
             board = self.computerBoard
         sunk = False
-        # Checks id you already made a move there
+        # Checks if you already made a move there
         if board[x][y] == '*' or board[x][y] == '#':
+            messages.insert(0, "Sorry, You've already played there.")
             return board[x][y]
         else:
             # Gets the old symbol in that cell
@@ -211,12 +281,13 @@ class BattleshipGame():
             # If a ship was in that cell
             if board[x][y] != ' ':
                 board[x][y] = '#'
-
                 # Checks to see if you sunk the ship
                 sunk = self.checkIfSunk(computer, old)
                 if computer:
+                    messages.insert(0, 'The enemy has hit your fleet!!')
                     self.hits[0] += 1
                     if sunk:
+                        messages.insert(0, "The enemy has sunk your" + self.reference[old][0])
                         self.sunk[0][0] += 1
                         z = 1
 
@@ -225,8 +296,10 @@ class BattleshipGame():
                             z += 1
                         self.sunk[0][z] = self.reference[old][0]
                 else:
+                    messages.insert(0, "You've hit the enemy's fleet!!")
                     self.hits[1] += 1
                     if sunk:
+                        messages.insert(0, "You've sunk their " + self.reference[old][0])
                         self.sunk[1][0] += 1
                         z = 1
 
@@ -238,10 +311,12 @@ class BattleshipGame():
                 board[x][y] = '*'
                 if computer:
                     self.misses[0] += 1
+                    messages.insert(0, 'The enemy has missed your fleet')
                 else:
                     self.misses[1] += 1
+                    messages.insert(0, "You've missed the enemy fleet")
             # returns the old cell symbol and if you sunk a ship
-            return old, sunk
+            return [old, sunk]
 
     # Checks to see if a ship was sunk
     def checkIfSunk(self, computer, ship):
@@ -294,9 +369,9 @@ class BattleshipGame():
         return limit
 
     # Makes the move for the computer
-    def AI_move(self, coordinates, target, diff):
+    def AI_move(self, coordinates, target):
         global possible_positions
-        if diff == "1":
+        if diff == 1:
             coordinates = [letters.index(random.choice(letters)), random.randint(0, 9)]
         else:
             # Converts the number back into int from a str because of displaying
@@ -305,7 +380,7 @@ class BattleshipGame():
             # Searches the board for a ship
             if not target:
                 possible_positions = []
-                if diff == "2":
+                if diff == 2:
                     coordinates[1] += 2
 
                     # Bumps its search down a row
@@ -366,8 +441,20 @@ class BattleshipGame():
                         for x in range(10):
                             if possiblelocation[y][x] > biggest[0][0]:
                                 biggest[0] = [possiblelocation[y][x], y, x]
-                    #for x in possiblelocation:
-                     #   print(x)
+                    print()
+                    for x in possiblelocation:
+                        print('[', end='')
+                        for y in range(10):
+                            if x[y] > 9:
+                                if y != 9:
+                                    print(str(x[y]) + ', ', end='')
+                                else:
+                                    print(str(x[y]) + ']')
+                            else:
+                                if y != 9:
+                                    print('0' + str(x[y]) + ', ', end='')
+                                else:
+                                    print(str(x[y]) + ']')
                     coordinates = [biggest[0][1], biggest[0][2]]
 
             else:
@@ -388,81 +475,112 @@ class BattleshipGame():
                                 self.userBoard[coordinates[0]][coordinates[1] - 1] != '*' and\
                                 [coordinates[0], coordinates[1] - 1] not in possible_positions:
                     possible_positions.append([coordinates[0], coordinates[1] - 1])
-                print(possible_positions)
                 # Pops the last append position for the AI to hit
                 coordinates = possible_positions.pop()
         return coordinates
 
 
-def instructions(background):
-    Surface.fill((0, 0, 0))
-    Surface.blit(background, (0, 0))
-    title("Instructions", win_width/2 - 200, 25)
-    text("Use the mouse to position your ship and press space bar to flip the orientation.", 150, 115)
-    text("Ships cannot overlap or go outside the bounds of the grid.", 255, 155)
-    title("Fleet", win_width/2 - 100, 200)
-    text("A = Aircraft Carrier (5 units)", 300, 290)
-    text("# = Hit on a ship", 775, 290)
-    text("B = Battleship (4 units)", 300, 330)
-    text("*  = Miss", 777, 330)
-    text("D = Destroyer (3 units)", 300, 370)
-    text("S = Submarine (3 units)", 300, 410)
-    text("P = Patrol Boat (2 units)", 300, 450)
-    button('Return to game', 1070, 735, 300, 50, size='med')
+class Button:
+    def __init__(self, msg, x, y, w, h, function, border=0, color=BLACK, size="lrg"):
+        self.msg = msg
+        self.x = x
+        self.y = y
+        self.w = w
+        self.h = h
+        self.function = function
+        self.border = border
+        self.color = color
+        self.size = size
 
 
-def title(msg, x, y):
-    title = title_font.render(msg, True, WHITE)
-    result_rect = title.get_rect()
-    result_rect.topleft = (x, y)
-    Surface.blit(title, result_rect)
+        # draws the Button
+        self.draw_Button()
+
+        buttons.append(self)
+
+    def draw_Button(self):
+        pygame.draw.rect(Surface, (115, 115, 115), (self.x, self.y, self.w, self.h), self.border)
+        if self.size == 'lrg':
+            text_surf = Button_font.render(self.msg, True, self.color)
+        else:
+            text_surf = text_font.render(self.msg, True, self.color)
+        result_rect = text_surf.get_rect()
+        result_rect.center = ((self.x + (self.w/2)), (self.y + (self.h/2)))
+        Surface.blit(text_surf, result_rect)
+
+    def check_clicked(self):
+        if (self.x + self.w) > pygame.mouse.get_pos()[0] > self.x and (self.y + self.h) > pygame.mouse.get_pos()[1] \
+                > self.y:
+            return True
+
+    def execute(self):
+        exec(self.function)
 
 
-def text(msg, x, y):
-    text = text_font.render(msg, True, WHITE)
+def delete_buttons():
+    global buttons
+    buttons = []
+
+
+def set_diff(difficulty):
+    global diff
+    diff = difficulty
+
+
+def text(msg, x, y, size, color=WHITE):
+    if size == 'lrg':
+        text = title_font.render(msg, True, color)
+    elif size == 'med':
+        text = text_font.render(msg, True, color)
+    elif size == 'sml':
+        text = small_font.render(msg, True, color)
     result_rect = text.get_rect()
     result_rect.topleft = (x, y)
     Surface.blit(text, result_rect)
 
 
+def end_game(player):
+    delete_buttons()
+    Surface.fill((0, 0, 0))
+    Surface.blit(background, (0, 0))
+    if player:
+        text('Congratulations! You have sunk', 150, 155, 'lrg')
+        text('the emeny fleet!!', 450, 235, 'lrg')
+    else:
+        text('The enemy has sunk your fleet!!', 150, 155, 'lrg')
+    Button('New Game', (win_width/2) - 150, 315, 300, 50, 'new_game()')
+
+
 def home_screen():
-    title('Battleship', win_width/2 - 200, 25)
+    delete_buttons()
+    text('Battleship', win_width/2 - 200, 25, 'lrg')
     image = pygame.image.load('pieces.png')
     Surface.blit(image, ((win_width/2) - 450, 110))
-    button('New Game', (win_width/2) - 150, 375, 300, 50)
-    button('Load Game', (win_width/2) - 150, 450, 300, 50)
+    Button('New Game', (win_width/2) - 150, 375, 300, 50, 'new_game()')
+    Button('Load Game', (win_width/2) - 150, 450, 300, 50, 'load_game()')
 
-
-def button(msg, x, y, w, h, border=0, color=BLACK, size='lrg'):
-    pygame.draw.rect(Surface, (115, 115, 115), (x, y, w, h), border)
-    if size == 'lrg':
-        text_surf = button_font.render(msg, True, color)
-    else:
-        text_surf = text_font.render(msg, True, color)
-    result_rect = text_surf.get_rect()
-    result_rect.center = ((x + (w/2)), (y + (h/2)))
-    Surface.blit(text_surf, result_rect)
 
 def new_game():
-    title('Please select a difficulty', win_width/2 - 425, 100)
-    button('Easy', (win_width/2) - 175, 250, 300, 50)
-    button('Medium', (win_width/2) - 175, 325, 300, 50)
-    button('Hard', (win_width/2) - 175, 400, 300, 50)
-
-def main():
-    # Initialize the board and all the placements of ships
+     # Initialize the board and placements of computer ships
+    global board, placed
     board = BattleshipGame()
     board.comupterPlace()
-    pygame.init()
-    global Surface
+    placed = False
 
-    # Font info
-    global title_font, button_font, text_font
-    title_font = pygame.font.Font('freesansbold.ttf', 70)
-    button_font = pygame.font.Font('freesansbold.ttf', 40)
-    text_font = pygame.font.Font('freesansbold.ttf', 30)
+    delete_buttons()
+    Surface.fill((0, 0, 0))
+    Surface.blit(background, (0, 0))
 
+    text('Please select a difficulty', win_width/2 - 425, 100, 'lrg')
+    Button('Easy', (win_width/2) - 175, 250, 300, 50, 'set_diff(1); board.userPlace()')
+    Button('Medium', (win_width/2) - 175, 325, 300, 50, 'set_diff(2); board.userPlace()')
+    Button('Hard', (win_width/2) - 175, 400, 300, 50, 'set_diff(3); board.userPlace()')
+
+
+def main():
     # Initialize GUI settings
+    global background, Surface
+    pygame.init()
     FPS_clock = pygame.time.Clock()
     Surface = pygame.display.set_mode((win_width, win_height))
     pygame.display.set_caption('Battleship')
@@ -471,12 +589,24 @@ def main():
     background.set_alpha(150)
     Surface.blit(background, (0, 0))
 
+    # Font info
+    global title_font, Button_font, text_font, small_font
+    title_font = pygame.font.Font('freesansbold.ttf', 70)
+    Button_font = pygame.font.Font('freesansbold.ttf', 40)
+    text_font = pygame.font.Font('freesansbold.ttf', 30)
+    small_font = pygame.font.Font('freesansbold.ttf', 15)
+
     # Display the home screen
     home_screen()
-    screen = 0
-    diff = 0
+
+    global messages, content, placed
+    messages = []
+    player, update, target = False, False, False
+    AI_coordinates = [0, -1]
+    hits = 0
 
     while True:
+
         # Main event loop
         for event in pygame.event.get():
             # Quits the game and closes the window
@@ -484,41 +614,58 @@ def main():
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONUP:
-                if screen == 0:
-                    if ((win_width/2) - 150) + 300 > pygame.mouse.get_pos()[0] > ((win_width/2) - 150) \
-                            and 425 > pygame.mouse.get_pos()[1] > 375:
-                        print('New Game')
-                        Surface.fill((0, 0, 0))
-                        Surface.blit(background, (0, 0))
-                        new_game()
-                        screen = 1
-                    elif ((win_width/2) - 150) + 300 > pygame.mouse.get_pos()[0] > ((win_width/2) - 150) \
-                            and 500 > pygame.mouse.get_pos()[1] > 450:
-                        print('Load Game')
-                elif screen == 1:
-                    if ((win_width/2) - 175) + 300 > pygame.mouse.get_pos()[0] > ((win_width/2) - 175) \
-                            and 300 > pygame.mouse.get_pos()[1] > 250:
-                        diff = 1
-                        screen = 2
-                    elif ((win_width/2) - 175) + 300 > pygame.mouse.get_pos()[0] > ((win_width/2) - 175) \
-                            and 375 > pygame.mouse.get_pos()[1] > 325:
-                        diff = 2
-                        screen = 2
-                    elif ((win_width/2) - 175) + 300 > pygame.mouse.get_pos()[0] > ((win_width/2) - 175) \
-                            and 450 > pygame.mouse.get_pos()[1] > 400:
-                        diff = 3
-                        screen = 2
-                elif screen == 2:
-                    if 1370 > pygame.mouse.get_pos()[0] > 1170 and 785 > pygame.mouse.get_pos()[1] > 735:
-                        instructions(background)
-                        screen = 3
-                elif screen == 3:
-                    if 1370 > pygame.mouse.get_pos()[0] > 1070 and 785 > pygame.mouse.get_pos()[1] > 735:
-                        screen = 2
+                for button in buttons:
+                    if button.check_clicked():
+                        button.execute()
+                        if placed:
+                            update = True
+                            player = not player
 
+        if update:
+            if not player:
+                content = ['*', None]
+                while content[0] == '*' or content[0] == '#':
+                    coordinates = board.AI_move(AI_coordinates, target)
+                    AI_coordinates = coordinates
+                    content = board.makeA_Move(True, coordinates[0], coordinates[1])
+                if diff != 1:
+                    if content[0] == ' ':
+                        if target:
+                            AI_coordinates = recent_hit
 
-        if screen == 2:
-            board.drawBoards(False, background)
+                            # If there are no more possible positions to hit from its current cell
+                            # goes back to where it first hit
+                            if len(possible_positions) == 0:
+                                    AI_coordinates = first_hit
+                        else:
+                            target = True
+
+                            # Saves the first hit
+                            if hits == 0:
+                                first_hit = coordinates
+
+                            # Saves the most resent hit
+                            recent_hit = coordinates
+
+                            # increments the hits
+                            hits += 1
+
+                        if content[1]:
+                            if hits != board.reference[content[0]][1]:
+                                hits -= board.reference[content[0]][1]
+                            else:
+                                target = False
+                                hits = 0
+                            print(first_hit)
+                            # Resets the AI position back to where it first made a hit
+                            AI_coordinates = first_hit
+                player = not player
+            if board.checkWinning(not player):
+                end_game(player)
+            else:
+                board.draw_main_screen(False)
+            update = False
+
 
         # Updates the display
         pygame.display.update()

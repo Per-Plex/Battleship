@@ -6,21 +6,22 @@
 # Status: In-progress (21/06/2016)
 
 # Current Features
-##CLI
- - Improved command line display
- - New welcome screen
+  ---
+###CLI
+    - Improved command line display
+    - New welcome screen
  
-##GUI
- - Class for buttons
- - Fully interactive GUI
- - Main menu
- - Saving and loading states
+###GUI
+    - Class for buttons
+    - Fully interactive GUI
+    - Main menu
+    - Saving and loading states
  
-##Both
-- Class for board state 
-- Difficulty selector
-- AI uses hunt (with parity) and target mode on medium difficulty
-- Hard difficulty uses a PDF algorthim for hunt and a standard target mode
+###Both
+    - Class for board state 
+    - Difficulty selector
+    - AI uses hunt (with parity) and target mode on medium difficulty
+    - Hard difficulty uses a PDF algorthim for hunt and a standard target mode
 
 
 # Future Features

@@ -14,10 +14,10 @@
 - Hard difficulty uses a PDF algorthim for hunt and a standard target mode
 - Fully interactive GUI
 - Main menu
+- Saving and loading states
 
 # Future Features
 - Sounds
-- Saving and loading states
 - PDF based target and hunt mode
 - Packaged .exe file for simple use
 

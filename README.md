@@ -19,6 +19,7 @@
 - Sounds
 - Saving and loading states
 - PDF based target and hunt mode
+- Packaged .exe file for simple use
 
 # How To Play
 

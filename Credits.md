@@ -4,8 +4,8 @@
   ***
 ###The Noun Project Sources
 
-  -Battleship - Created by Anand Prahlad
-  -Submarine - Created By Lke Anthony Firth
+  - Battleship - Created by Anand Prahlad
+  - Submarine - Created By Lke Anthony Firth
   
 ###RPG Maker 2000/2003
   

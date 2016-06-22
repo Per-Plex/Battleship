@@ -22,7 +22,7 @@ buttons = []
 # Difficulty
 diff = 0
 
-# Old content of selected cell
+# Boolean for if the user/load finished placing their/the ships
 placed = False
 
 
@@ -77,6 +77,8 @@ class BattleshipGame:
                 text(messages[x], 1130, 490-(x*20), 'sml', color=(153, 153, 153))
         text("Computer's Stats:", 195, 515, 'med')
         text("User's Stats:", 760, 515, 'med')
+
+        # Spacing for hits and misses
         if self.misses[0] > 9:
             Mspace = 67
         else:
@@ -85,6 +87,7 @@ class BattleshipGame:
             Hspace = 67
         else:
             Hspace = 69
+
         text('Hits              : ' + str(self.hits[0]) + ' '*Hspace + str(self.hits[1]), 5, 550, 'med')
         text('Missess       : ' + str(self.misses[0]) + ' '*Mspace + str(self.misses[1]), 5, 590, 'med')
         text('Ships sunk : ' + str(self.sunk[0][0]) + ' '*69 + str(self.sunk[1][0]), 5, 630, 'med')
@@ -133,6 +136,8 @@ class BattleshipGame:
                 else:
                     self.computerBoard[x_axis][y_axis+y] = x
 
+    # Draws the screen where the user places their ships
+    @staticmethod
     def draw_user_place_screen(self, user_board):
         Surface.fill((0, 0, 0))
         Surface.blit(background, (0, 0))
@@ -141,7 +146,6 @@ class BattleshipGame:
         text("and enter to place the ship on the board. Ships cannot overlap or go outside the", 135, 155, 'med')
         text("bounds of the grid.", 135, 195, 'med')
         for x in range(10):
-            write_obj = letters[x]
             z = 0
             for y in user_board[x]:
                 Button(y, 100+(50*z), 235+(40*x), 50, 40, 'None', border=2, color=WHITE, size='med')
@@ -227,7 +231,6 @@ class BattleshipGame:
         global placed
         placed = True
 
-
     # Gets all the sunk and to be sunk ships
     def getEnemyFleet(self, computer):
         write_obj = 'Ships to sink:'
@@ -266,21 +269,21 @@ class BattleshipGame:
     def makeA_Move(self, computer, x, y):
         # Assigns the board to place the move
         if computer:
-            board = self.userBoard
+            usable_board = self.userBoard
             self.round += 1
         else:
-            board = self.computerBoard
+            usable_board = self.computerBoard
         sunk = False
         # Checks if you already made a move there
-        if board[x][y] == '*' or board[x][y] == '#':
+        if usable_board[x][y] == '*' or usable_board[x][y] == '#':
             messages.insert(0, "Sorry, You've already played there.")
-            return board[x][y]
+            return usable_board[x][y]
         else:
             # Gets the old symbol in that cell
-            old = board[x][y]
+            old = usable_board[x][y]
             # If a ship was in that cell
-            if board[x][y] != ' ':
-                board[x][y] = '#'
+            if usable_board[x][y] != ' ':
+                usable_board[x][y] = '#'
                 # Checks to see if you sunk the ship
                 sunk = self.checkIfSunk(computer, old)
                 if computer:
@@ -297,6 +300,9 @@ class BattleshipGame:
                         self.sunk[0][z] = self.reference[old][0]
                 else:
                     messages.insert(0, "You've hit the enemy's fleet!!")
+                    pygame.mixer.music.load('Explosion+3.wav')
+                    pygame.mixer.music.set_volume(0.5)
+                    pygame.mixer.music.play()
                     self.hits[1] += 1
                     if sunk:
                         messages.insert(0, "You've sunk their " + self.reference[old][0])
@@ -308,13 +314,16 @@ class BattleshipGame:
                             z += 1
                         self.sunk[1][z] = self.reference[old][0]
             else:
-                board[x][y] = '*'
+                usable_board[x][y] = '*'
                 if computer:
                     self.misses[0] += 1
                     messages.insert(0, 'The enemy has missed your fleet')
                 else:
                     self.misses[1] += 1
                     messages.insert(0, "You've missed the enemy fleet")
+                    pygame.mixer.music.load('Water Explosion Sound Effect.wav')
+                    pygame.mixer.music.set_volume(0.5)
+                    pygame.mixer.music.play()
             # returns the old cell symbol and if you sunk a ship
             return [old, sunk]
 
@@ -400,7 +409,6 @@ class BattleshipGame:
                 else:
                     possiblelocation = [[0 for x in range(10)] for x in range(10)]
                     largest = 0
-                    available_cells = [-1, -1]
                     available_ships = []
                     for key in self.userShips:
                         available_ships.append(self.userShips[key])
@@ -479,6 +487,7 @@ class BattleshipGame:
                 coordinates = possible_positions.pop()
         return coordinates
 
+    # Saves the game state to .ship file
     def save_game(self):
         try:
             file = open("save_game.ship", "w")
@@ -501,6 +510,7 @@ class BattleshipGame:
         except IOError:
             messages.insert(0, 'Error saving game')
 
+    # Loads the game state from .ship file
     def load_game(self):
         global diff
         try:
@@ -526,6 +536,7 @@ class BattleshipGame:
         except IOError:
             messages.insert(0, 'Failed to load game')
 
+    # Resets the data back to a usable type
     def reset_type(self, computer, dic, data):
         if dic:
             if computer:
@@ -557,8 +568,7 @@ class Button:
         self.color = color
         self.size = size
 
-
-        # draws the Button
+        # draws the Button and appends to current on screen buttons
         self.draw_Button()
         if function != 'None':
             buttons.append(self)
@@ -573,11 +583,13 @@ class Button:
         result_rect.center = ((self.x + (self.w/2)), (self.y + (self.h/2)))
         Surface.blit(text_surf, result_rect)
 
+    # Checks to see if the button was clicked
     def check_clicked(self):
         if (self.x + self.w) > pygame.mouse.get_pos()[0] > self.x and (self.y + self.h) > pygame.mouse.get_pos()[1] \
                 > self.y:
             return True
 
+    # Executes the buttons function
     def execute(self):
         exec(self.function)
 
@@ -592,18 +604,20 @@ def set_diff(difficulty):
     diff = difficulty
 
 
+# General function for displaying text
 def text(msg, x, y, size, color=WHITE):
     if size == 'lrg':
-        text = title_font.render(msg, True, color)
+        text_block = title_font.render(msg, True, color)
     elif size == 'med':
-        text = text_font.render(msg, True, color)
-    elif size == 'sml':
-        text = small_font.render(msg, True, color)
-    result_rect = text.get_rect()
+        text_block = text_font.render(msg, True, color)
+    else:
+        text_block = small_font.render(msg, True, color)
+    result_rect = text_block.get_rect()
     result_rect.topleft = (x, y)
-    Surface.blit(text, result_rect)
+    Surface.blit(text_block, result_rect)
 
 
+# End game screen
 def end_game(player):
     delete_buttons()
     Surface.fill((0, 0, 0))
@@ -616,6 +630,7 @@ def end_game(player):
     Button('New Game', (win_width/2) - 150, 315, 300, 50, 'new_game(True)')
 
 
+# First screen that the user sees
 def home_screen():
     global board
     board = BattleshipGame()
@@ -627,6 +642,7 @@ def home_screen():
     Button('Load Game', (win_width/2) - 150, 450, 300, 50, 'board.load_game()')
 
 
+# Builds a new game
 def new_game(new):
     # Initialize the board and placements of computer ships
     global placed, board
@@ -667,6 +683,7 @@ def main():
     # Display the home screen
     home_screen()
 
+    # messages for user, old content of cell, and whether the users ships have been placed
     global messages, content, placed
     messages = []
     player, update, target = False, False, False
@@ -681,15 +698,16 @@ def main():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+            # Checks to see if a button was clicked
             if event.type == pygame.MOUSEBUTTONUP:
                 for button in buttons:
                     if button.check_clicked():
                         button.execute()
-                        print('hello')
                         if placed:
                             update = True
                             player = not player
 
+        # Updates the screen and makes the computers move
         if update:
             if not player:
                 content = ['*', None]
@@ -728,6 +746,7 @@ def main():
                             # Resets the AI position back to where it first made a hit
                             AI_coordinates = first_hit
                 player = not player
+            # Checks to see if someone has won
             if board.checkWinning(not player):
                 end_game(player)
             else:

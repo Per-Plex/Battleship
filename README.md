@@ -16,6 +16,7 @@
     - Fully interactive GUI
     - Main menu
     - Saving and loading states
+    - Sounds
  
 ###Both
     - Class for board state 
@@ -25,7 +26,6 @@
 
 
 ### Future Features
-    - Sounds
     - PDF based target and hunt mode
     - Packaged .exe file for simple use
 

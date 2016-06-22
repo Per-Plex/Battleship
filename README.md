@@ -16,7 +16,7 @@
     - Fully interactive GUI
     - Main menu
     - Saving and loading states
-    - Sounds
+    - Sounds for hits and misses
  
 ###Both
     - Class for board state 

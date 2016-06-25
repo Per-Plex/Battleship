@@ -5,7 +5,7 @@
   
 # Status: In-progress (21/06/2016)
 
-# Current Features
+# Features
   
 ###CLI
     - Improved command line display

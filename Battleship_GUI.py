@@ -138,7 +138,7 @@ class BattleshipGame:
 
     # Draws the screen where the user places their ships
     @staticmethod
-    def draw_user_place_screen(self, user_board):
+    def draw_user_place_screen( user_board):
         Surface.fill((0, 0, 0))
         Surface.blit(background, (0, 0))
         text('Place Your Fleet', win_width/2 - 270, 25, 'lrg')
@@ -300,8 +300,8 @@ class BattleshipGame:
                         self.sunk[0][z] = self.reference[old][0]
                 else:
                     messages.insert(0, "You've hit the enemy's fleet!!")
-                    pygame.mixer.music.load('Explosion+3.wav')
-                    pygame.mixer.music.set_volume(0.5)
+                    pygame.mixer.music.load('assets&sounds/Explosion+3.wav')
+                    pygame.mixer.music.set_volume(0.1)
                     pygame.mixer.music.play()
                     self.hits[1] += 1
                     if sunk:
@@ -321,8 +321,8 @@ class BattleshipGame:
                 else:
                     self.misses[1] += 1
                     messages.insert(0, "You've missed the enemy fleet")
-                    pygame.mixer.music.load('Water Explosion Sound Effect.wav')
-                    pygame.mixer.music.set_volume(0.5)
+                    pygame.mixer.music.load('assets&sounds/Water Explosion Sound Effect.wav')
+                    pygame.mixer.music.set_volume(0.2)
                     pygame.mixer.music.play()
             # returns the old cell symbol and if you sunk a ship
             return [old, sunk]
@@ -636,7 +636,7 @@ def home_screen():
     board = BattleshipGame()
     delete_buttons()
     text('Battleship', win_width/2 - 200, 25, 'lrg')
-    image = pygame.image.load('pieces.png')
+    image = pygame.image.load('assets&sounds/pieces.png')
     Surface.blit(image, ((win_width/2) - 450, 110))
     Button('New Game', (win_width/2) - 150, 375, 300, 50, 'new_game(False)')
     Button('Load Game', (win_width/2) - 150, 450, 300, 50, 'board.load_game()')
@@ -668,8 +668,8 @@ def main():
     FPS_clock = pygame.time.Clock()
     Surface = pygame.display.set_mode((win_width, win_height))
     pygame.display.set_caption('Battleship')
-    pygame.display.set_icon(pygame.image.load('Ticonderoga_cruiser.gif'))
-    background = pygame.transform.scale(pygame.image.load('water.png'), (win_width, win_height))
+    pygame.display.set_icon(pygame.image.load('assets&sounds/Ticonderoga_cruiser.gif'))
+    background = pygame.transform.scale(pygame.image.load('assets&sounds/water.png'), (win_width, win_height))
     background.set_alpha(150)
     Surface.blit(background, (0, 0))
 

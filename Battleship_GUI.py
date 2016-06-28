@@ -320,7 +320,7 @@ class BattleshipGame:
                 else:
                     messages.insert(0, "You've hit the enemy's fleet!!")
                     pygame.mixer.music.load('assets&sounds/Explosion+3.wav')
-                    pygame.mixer.music.set_volume(0.5)
+                    pygame.mixer.music.set_volume(0.1)
                     pygame.mixer.music.play()
                     self.hits[1] += 1
                     if sunk:
@@ -341,7 +341,7 @@ class BattleshipGame:
                     self.misses[1] += 1
                     messages.insert(0, "You've missed the enemy fleet")
                     pygame.mixer.music.load('assets&sounds/Water Explosion Sound Effect.wav')
-                    pygame.mixer.music.set_volume(0.5)
+                    pygame.mixer.music.set_volume(0.2)
                     pygame.mixer.music.play()
 
             # returns the old cell symbol and if you sunk a ship

@@ -138,7 +138,7 @@ class BattleshipGame:
 
     # Draws the screen where the user places their ships
     @staticmethod
-    def draw_user_place_screen( user_board):
+    def draw_user_place_screen(user_board):
         Surface.fill((0, 0, 0))
         Surface.blit(background, (0, 0))
         text('Place Your Fleet', win_width/2 - 270, 25, 'lrg')
@@ -169,20 +169,28 @@ class BattleshipGame:
             finished = False
             board_copy = copy.deepcopy(user_place_board)
             while not finished:
+
+                # Makes a copy of the board to simply revert changes
                 if not ignore and update:
                     deep_copy = copy.deepcopy(board_copy)
                     user_place_board = board_copy
                     board_copy = deep_copy
+
+                # Places the ship on the board
                 for y in range(self.userShips[x]):
                     if orientation == 'v':
                         user_place_board[y_axis+y][x_axis] = x
                     else:
                         user_place_board[y_axis][x_axis+y] = x
+                # Updates the display
                 if update:
                     self.draw_user_place_screen(user_place_board)
                     update = False
                     ignore = False
+
+                # Handles events
                 for event in pygame.event.get():
+
                     # Quits the game and closes the window
                     if event.type == pygame.QUIT:
                         pygame.quit()
@@ -223,11 +231,17 @@ class BattleshipGame:
                                         y_axis = (10 - self.userShips[x])
                                     orientation = 'v'
                                 update = True
+
+                            # Checks the placement of the ship
                             elif event.key == pygame.K_RETURN:
                                 finished = self.validatePlacement(False, self.userShips[x], y_axis, x_axis, orientation)
                                 update = True
                 pygame.display.update()
+
+            # once all ships are placed move the pieces over to the game board
             self.userBoard = user_place_board
+
+        # Tells the main display to start
         global placed
         placed = True
 
@@ -267,6 +281,7 @@ class BattleshipGame:
 
     # Makes a move on the opposite board
     def makeA_Move(self, computer, x, y):
+
         # Assigns the board to place the move
         if computer:
             usable_board = self.userBoard
@@ -274,23 +289,27 @@ class BattleshipGame:
         else:
             usable_board = self.computerBoard
         sunk = False
+
         # Checks if you already made a move there
         if usable_board[x][y] == '*' or usable_board[x][y] == '#':
             messages.insert(0, "Sorry, You've already played there.")
             return usable_board[x][y]
         else:
+
             # Gets the old symbol in that cell
             old = usable_board[x][y]
+
             # If a ship was in that cell
             if usable_board[x][y] != ' ':
                 usable_board[x][y] = '#'
+
                 # Checks to see if you sunk the ship
                 sunk = self.checkIfSunk(computer, old)
                 if computer:
                     messages.insert(0, 'The enemy has hit your fleet!!')
                     self.hits[0] += 1
                     if sunk:
-                        messages.insert(0, "The enemy has sunk your" + self.reference[old][0])
+                        messages.insert(0, "Your " + self.reference[old][0] + " has been sunk!")
                         self.sunk[0][0] += 1
                         z = 1
 
@@ -301,7 +320,7 @@ class BattleshipGame:
                 else:
                     messages.insert(0, "You've hit the enemy's fleet!!")
                     pygame.mixer.music.load('assets&sounds/Explosion+3.wav')
-                    pygame.mixer.music.set_volume(0.1)
+                    pygame.mixer.music.set_volume(0.5)
                     pygame.mixer.music.play()
                     self.hits[1] += 1
                     if sunk:
@@ -322,14 +341,15 @@ class BattleshipGame:
                     self.misses[1] += 1
                     messages.insert(0, "You've missed the enemy fleet")
                     pygame.mixer.music.load('assets&sounds/Water Explosion Sound Effect.wav')
-                    pygame.mixer.music.set_volume(0.2)
+                    pygame.mixer.music.set_volume(0.5)
                     pygame.mixer.music.play()
+
             # returns the old cell symbol and if you sunk a ship
             return [old, sunk]
 
     # Checks to see if a ship was sunk
     def checkIfSunk(self, computer, ship):
-        if computer:
+        if not computer:
             ships = self.computerShips
         else:
             ships = self.userShips
@@ -341,11 +361,13 @@ class BattleshipGame:
         self.round += 1
 
     # Checks ahead and behind the current cell to see if there is a limit
-    def check_ahead_behind(self, x, y, size):
+    def check_ahead_behind(self, y, x, size):
         limit = [[5, 5], [5, 5]]
         found = [False, False, False, False]
         over = [False, False, False, False]
         for z in range(1, size):
+
+            # Horizontal limit
             if x - z >= 0:
                 if (self.userBoard[y][x-z] == '*' or self.userBoard[y][x-z] == "#") and not found[0]:
                     limit[0][1] = z
@@ -360,6 +382,8 @@ class BattleshipGame:
             elif not over[1] and not found[1]:
                 limit[0][0] = z
                 over[1] = True
+
+            # Vertical limit
             if y - z >= 0:
                 if (self.userBoard[y-z][x] == "*" or self.userBoard[y-z][x] == "#") and not found[2]:
                     limit[1][1] = z
@@ -383,8 +407,6 @@ class BattleshipGame:
         if diff == 1:
             coordinates = [letters.index(random.choice(letters)), random.randint(0, 9)]
         else:
-            # Converts the number back into int from a str because of displaying
-            coordinates[1] = int(coordinates[1])
 
             # Searches the board for a ship
             if not target:
@@ -411,7 +433,8 @@ class BattleshipGame:
                     largest = 0
                     available_ships = []
                     for key in self.userShips:
-                        available_ships.append(self.userShips[key])
+                        if self.userShips[key] != 0:
+                            available_ships.append(self.userShips[key])
                         if self.userShips[key] > largest:
                             largest = self.userShips[key]
                     # Finds the probability for each cell based on a PDF
@@ -421,6 +444,7 @@ class BattleshipGame:
                                 possiblelocation[y][x] = 0
                             else:
                                 limit = self.check_ahead_behind(y, x, largest)
+                                #print(y, x, limit, available_ships)
                                 available_cells = [(limit[0][0] + limit[0][1]) - 1, (limit[1][0] + limit[1][1]) - 1]
                                 for ship in available_ships:
                                     for orientation in range(2):
@@ -444,13 +468,18 @@ class BattleshipGame:
                                                     possiblelocation[y][x] += ship
                                                 else:
                                                     possiblelocation[y][x] += (available_cells[orientation] - ship) + 1
-                    biggest = [[0, 0, 0]]
-                    for y in range(10):
-                        for x in range(10):
-                            if possiblelocation[y][x] > biggest[0][0]:
-                                biggest[0] = [possiblelocation[y][x], y, x]
-                    print()
-                    for x in possiblelocation:
+
+                    biggest = []
+                    for i in range(2):
+                        for y in range(10):
+                            for x in range(10):
+                                if i == 0:
+                                    if possiblelocation[y][x] > largest:
+                                        largest = possiblelocation[y][x]
+                                else:
+                                    if possiblelocation[y][x] == largest:
+                                        biggest.append([y, x])
+                    '''for x in possiblelocation:
                         print('[', end='')
                         for y in range(10):
                             if x[y] > 9:
@@ -462,10 +491,15 @@ class BattleshipGame:
                                 if y != 9:
                                     print('0' + str(x[y]) + ', ', end='')
                                 else:
-                                    print(str(x[y]) + ']')
-                    coordinates = [biggest[0][1], biggest[0][2]]
-
+                                    if x[y] < 10:
+                                        print('0' + str(x[y]), end='')
+                                    else:
+                                        print(str(x[y]), end='')
+                                    print(']')
+                    print()'''
+                    coordinates = random.choice(biggest)
             else:
+
                 # Appends the possible hit position (N, E, S, W)
                 if coordinates[0] - 1 >= 0 and self.userBoard[coordinates[0] - 1][coordinates[1]] != '#' and\
                                 self.userBoard[coordinates[0] - 1][coordinates[1]] != '*' and\
@@ -483,7 +517,8 @@ class BattleshipGame:
                                 self.userBoard[coordinates[0]][coordinates[1] - 1] != '*' and\
                                 [coordinates[0], coordinates[1] - 1] not in possible_positions:
                     possible_positions.append([coordinates[0], coordinates[1] - 1])
-                # Pops the last append position for the AI to hit
+
+                # Pops the last position for the AI to hit
                 coordinates = possible_positions.pop()
         return coordinates
 
@@ -568,11 +603,12 @@ class Button:
         self.color = color
         self.size = size
 
-        # draws the Button and appends to current on screen buttons
+        # appends to current on screen buttons
         self.draw_Button()
         if function != 'None':
             buttons.append(self)
 
+    # draws the button to the screen
     def draw_Button(self):
         pygame.draw.rect(Surface, (115, 115, 115), (self.x, self.y, self.w, self.h), self.border)
         if self.size == 'lrg':
@@ -613,6 +649,7 @@ def text(msg, x, y, size, color=WHITE):
     else:
         text_block = small_font.render(msg, True, color)
     result_rect = text_block.get_rect()
+    result_rect = text_block.get_rect()
     result_rect.topleft = (x, y)
     Surface.blit(text_block, result_rect)
 
@@ -644,6 +681,7 @@ def home_screen():
 
 # Builds a new game
 def new_game(new):
+
     # Initialize the board and placements of computer ships
     global placed, board
     if new:
@@ -662,6 +700,7 @@ def new_game(new):
 
 
 def main():
+
     # Initialize GUI settings
     global background, Surface
     pygame.init()
@@ -686,12 +725,13 @@ def main():
     # messages for user, old content of cell, and whether the users ships have been placed
     global messages, content, placed
     messages = []
-    player, update, target = False, False, False
+    update, target = False, False
     AI_coordinates = [0, -1]
     hits = 0
 
     while True:
-
+        if not placed:
+            player = False
         # Main event loop
         for event in pygame.event.get():
             # Quits the game and closes the window
@@ -704,8 +744,11 @@ def main():
                     if button.check_clicked():
                         button.execute()
                         if placed:
-                            update = True
-                            player = not player
+                            if board.checkWinning(True):
+                                end_game(True)
+                            else:
+                                player = not player
+                                update = True
 
         # Updates the screen and makes the computers move
         if update:
@@ -723,32 +766,31 @@ def main():
                             # goes back to where it first hit
                             if len(possible_positions) == 0:
                                     AI_coordinates = first_hit
+                    else:
+                        target = True
+
+                        # Saves the first hit
+                        if hits == 0:
+                            first_hit = coordinates
+
+                        # Saves the most resent hit
+                        recent_hit = coordinates
+
+                        # increments the hits
+                        hits += 1
+
+                    if content[1]:
+                        if hits != board.reference[content[0]][1]:
+                            hits -= board.reference[content[0]][1]
                         else:
-                            target = True
-
-                            # Saves the first hit
-                            if hits == 0:
-                                first_hit = coordinates
-
-                            # Saves the most resent hit
-                            recent_hit = coordinates
-
-                            # increments the hits
-                            hits += 1
-
-                        if content[1]:
-                            if hits != board.reference[content[0]][1]:
-                                hits -= board.reference[content[0]][1]
-                            else:
-                                target = False
-                                hits = 0
-                            print(first_hit)
-                            # Resets the AI position back to where it first made a hit
-                            AI_coordinates = first_hit
+                            target = False
+                            hits = 0
+                        # Resets the AI position back to where it first made a hit
+                        AI_coordinates = first_hit
                 player = not player
             # Checks to see if someone has won
             if board.checkWinning(not player):
-                end_game(player)
+                end_game(not player)
             else:
                 board.draw_main_screen(False)
             update = False

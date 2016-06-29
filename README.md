@@ -30,7 +30,7 @@
     - PDF based target and hunt mode
 
 # How To Play
-If you are running windows you can download the [standalone build here] (https://github.com/Per-Plex/Battleship/releases)
+If you are running Windows you can download the [standalone build here] (https://github.com/Per-Plex/Battleship/releases)
 
 For people just wanting to use the command line version you can use any version of Python 3.0+ . For the GUI version you will need Python 3.2+ and pygame installed
 

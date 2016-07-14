@@ -3,7 +3,7 @@
   ---
   I recieved inspiration from this [article](http://www.datagenetics.com/blog/december32011/) in regards to the PDF AI. They have alot of interesting content all about data and databases thats definitely worth checking out. 
   
-# Status: In-progress (29/06/2016)
+# Status: Complete (14/07/2016)
 
 # Features
   
@@ -24,10 +24,6 @@
     - AI uses hunt (with parity) and target mode on medium difficulty
     - Hard difficulty uses a PDF algorthim for hunt and a standard target mode
     - Packaged .exe file for simple use
-
-
-### Future
-    - PDF based target and hunt mode
 
 # How To Play
 If you are running Windows you can download the [standalone build here] (https://github.com/Per-Plex/Battleship/releases)

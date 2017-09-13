@@ -7,18 +7,18 @@
 
 # Features
   
-###CLI
+### CLI
     - Improved command line display
     - New welcome screen
  
-###GUI
+### GUI
     - Class for buttons
     - Fully interactive GUI
     - Main menu
     - Saving and loading states
     - Sounds for hits and misses
  
-###Both
+### Both
     - Class for board state 
     - Difficulty selector
     - AI uses hunt (with parity) and target mode on medium difficulty
@@ -26,7 +26,7 @@
     - Packaged .exe file for simple use
 
 # How To Play
-If you are running Windows you can download the [standalone build here] (https://github.com/Per-Plex/Battleship/releases)
+If you are running Windows you can download the [standalone build here](https://github.com/Per-Plex/Battleship/releases)
 
 For people just wanting to use the command line version you can use any version of Python 3.0+ . For the GUI version you will need Python 3.2+ and pygame installed
 
